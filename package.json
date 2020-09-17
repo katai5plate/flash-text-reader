@@ -4,7 +4,7 @@
   "description": "高速逐次視覚提示(RSVP)を利用した文章リーダー",
   "main": "index.js",
   "scripts": {
-    "copy": "cpx ./node_modules/kuromoji/dict/* ./dict && cpx ./node_modules/kuromoji/LICENSE-2.0.txt ./dict"
+    "copy": "cpx ./node_modules/kuromoji/build/kuromoji.js ./ && cpx ./node_modules/kuromoji/dict/* ./dict && cpx ./node_modules/kuromoji/LICENSE-2.0.txt ./dict"
   },
   "repository": {
     "type": "git",
