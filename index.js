@@ -1,5 +1,6 @@
 (() => {
   const LIMIT = 4;
+  const INTERVAL = 750;
 
   let defaultText = "";
   let tokenizer = null;
@@ -26,7 +27,7 @@
   };
 
   changeButtonText("読み込み中...");
-  fetch("./README.md")
+  fetch("./defaultText.txt")
     .then((res) => res.text())
     .then((res) => {
       defaultText = res;
@@ -62,7 +63,7 @@
     isProcessing = true;
     const { value } = input;
     const result = tokenize(value || defaultText);
-    step([...result, ""], (v) => changeButtonText(v), 500)
+    step([...result, ""], (v) => changeButtonText(v), INTERVAL)
       .then(() => {
         isProcessing = false;
         console.log({ result });
