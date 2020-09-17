@@ -1,8 +1,8 @@
 const LIMIT = 4;
 
-window.defaultText = "";
-window.tokenizer = null;
-window.isProcessing = false;
+let defaultText = "";
+let tokenizer = null;
+let isProcessing = false;
 const button = document.getElementById("submit");
 const input = document.getElementById("text");
 
@@ -28,18 +28,18 @@ changeButtonText("読み込み中...");
 fetch("./README.md")
   .then((res) => res.text())
   .then((res) => {
-    window.defaultText = res;
+    defaultText = res;
     kuromoji.builder({ dicPath: "./dict" }).build((e, k) => {
       if (e) throw e;
-      window.tokenizer = k;
+      tokenizer = k;
       button.disabled = false;
       changeButtonText("[[ 決定 ]]");
     });
   });
 
 const tokenize = (text) => {
-  if (!window.tokenizer) return;
-  const { stock, result } = window.tokenizer
+  if (!tokenizer) return;
+  const { stock, result } = tokenizer
     .tokenize(text.replace(/\s+/g, ""))
     .map(({ surface_form }) => surface_form)
     .reduce(
@@ -56,19 +56,19 @@ const tokenize = (text) => {
 };
 
 button.onclick = () => {
-  if (window.isProcessing) return;
+  if (isProcessing) return;
   changeButtonText("");
-  window.isProcessing = true;
+  isProcessing = true;
   const { value } = input;
-  const result = tokenize(value || window.defaultText);
+  const result = tokenize(value || defaultText);
   step([...result, ""], (v) => changeButtonText(v), 500)
     .then(() => {
-      window.isProcessing = false;
+      isProcessing = false;
       console.log({ result });
       changeButtonText("[[ 決定 ]]");
     })
     .catch((e) => {
-      window.isProcessing = false;
+      isProcessing = false;
       changeButtonText("エラーが発生しました");
       throw e;
     });
