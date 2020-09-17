@@ -52,7 +52,6 @@ const tokenize = (text) => {
         result: [],
       }
     );
-  console.log(stock, result);
   return [...result, ...(stock === "" ? [] : [stock])];
 };
 
