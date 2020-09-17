@@ -37,9 +37,9 @@ fetch("./README.md")
     });
   });
 
-const tokenize = (text) =>
-  window.tokenizer &&
-  window.tokenizer
+const tokenize = (text) => {
+  if (!window.tokenizer) return;
+  const { stock, result } = window.tokenizer
     .tokenize(text.replace(/\s+/g, ""))
     .map(({ surface_form }) => surface_form)
     .reduce(
@@ -51,7 +51,10 @@ const tokenize = (text) =>
         stock: "",
         result: [],
       }
-    ).result;
+    );
+  console.log(stock, result);
+  return [...result, ...(stock === "" ? [] : [stock])];
+};
 
 button.onclick = () => {
   if (window.isProcessing) return;
