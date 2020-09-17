@@ -1,0 +1,26 @@
+{
+  "name": "flash-text-reader",
+  "version": "1.0.0",
+  "description": "高速逐次視覚提示(RSVP)を利用した文章リーダー",
+  "main": "index.js",
+  "scripts": {
+    "copy": "cpx ./node_modules/kuromoji/dict/* ./dict && cpx ./node_modules/kuromoji/LICENSE-2.0.txt ./dict"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/katai5plate/flash-text-reader.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/katai5plate/flash-text-reader/issues"
+  },
+  "homepage": "https://github.com/katai5plate/flash-text-reader#readme",
+  "dependencies": {
+    "kuromoji": "^0.1.2"
+  },
+  "devDependencies": {
+    "cpx": "^1.5.0"
+  }
+}
