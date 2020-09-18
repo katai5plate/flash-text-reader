@@ -20,17 +20,40 @@
       background-color: #222;
       color: white;
     }
+    #form {
+      width: 100%;
+      height: 10%;
+      background-color: #333;
+      color: gray;
+    }
+    #form input {
+      background-color: #222;
+      color: #aaa;
+    }
+    #form button {
+      background-color: #333;
+      color: #aaa;
+    }
     #text {
       width: 100%;
-      height: 80%;
+      height: 70%;
       background-color: #333;
       color: white;
     }
   </style>
   <body>
-    <button id="submit" disabled></button>
-    <textarea id="text" placeholder="ここに文章を入力..."></textarea>
     <script src="./kuromoji.js"></script>
+    <button id="submit" disabled></button>
+    <div id="form">
+      <button id="sfast">超はやい</button>
+      <button id="fast">はやい</button>
+      <button id="nomal">ふつう</button>
+      <button id="slow">おそい</button><br />
+      <input id="limit" value="3" min="0" max="20" type="number" /> 文字につき
+      <input id="interval" value="500" type="number" min="1" max="10000" />
+      ミリ秒で表示
+    </div>
+    <textarea id="text" placeholder="ここに文章を入力..."></textarea>
     <script src="./index.js"></script>
   </body>
 </html>

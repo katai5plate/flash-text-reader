@@ -1,18 +1,27 @@
 (() => {
-  const LIMIT = 3;
-  const INTERVAL = 500;
+  const submitButton = document.getElementById("submit");
+  const textInput = document.getElementById("text");
+  const limitInput = document.getElementById("limit");
+  const intervalInput = document.getElementById("interval");
+  const superFastButton = document.getElementById("sfast");
+  const fastButton = document.getElementById("fast");
+  const nomalButton = document.getElementById("nomal");
+  const slowButton = document.getElementById("slow");
+
+  const getLimit = () => +limitInput.value || 3;
+  const getInterval = () => +intervalInput.value || 500;
   const WAIT_TOKENS = [
-    { token: "\n", time: INTERVAL },
-    { token: "。", time: INTERVAL },
-    { token: "．", time: INTERVAL },
-    { token: "？", time: INTERVAL },
-    { token: "！", time: INTERVAL },
-    { token: "…", time: INTERVAL },
-    { token: "‥", time: INTERVAL },
-    { token: "、", time: INTERVAL / 2 },
-    { token: ",", time: INTERVAL / 2 },
-    { token: "，", time: INTERVAL / 2 },
-    { token: "・", time: INTERVAL / 2 },
+    { token: "\n", time: getInterval() },
+    { token: "。", time: getInterval() },
+    { token: "．", time: getInterval() },
+    { token: "？", time: getInterval() },
+    { token: "！", time: getInterval() },
+    { token: "…", time: getInterval() },
+    { token: "‥", time: getInterval() },
+    { token: "、", time: getInterval() / 2 },
+    { token: ",", time: getInterval() / 2 },
+    { token: "，", time: getInterval() / 2 },
+    { token: "・", time: getInterval() / 2 },
   ];
   const WAIT_TOKENS_LIST = WAIT_TOKENS.map((x) => x.token);
   const WAIT_TOKENS_REGEX = new RegExp(WAIT_TOKENS_LIST.join("|"));
@@ -24,10 +33,9 @@
   let defaultText = "";
   let tokenizer = null;
   let isProcessing = false;
-  const button = document.getElementById("submit");
-  const input = document.getElementById("text");
+  let forceStop = false;
 
-  const changeButtonText = (text) => (button.innerText = text);
+  const changeButtonText = (text) => (submitButton.innerText = text);
 
   const step = async (list, cb, ms) => {
     let res = [];
@@ -56,7 +64,7 @@
       kuromoji.builder({ dicPath: "./dict" }).build((e, k) => {
         if (e) throw e;
         tokenizer = k;
-        button.disabled = false;
+        submitButton.disabled = false;
         changeButtonText("[[ 決定 ]]");
       });
     });
@@ -81,7 +89,7 @@
     // 文字数が LIMIT に満たなければ次の単語を繋げる
     const { stock: connectedStock, result: connectedResult } = tokenized.reduce(
       ({ stock, result }, c) =>
-        stock.length + c.length >= LIMIT || isEqualWaitTokens(c)
+        stock.length + c.length >= getLimit() || isEqualWaitTokens(c)
           ? isEqualWaitTokens(c)
             ? {
                 stock: "",
@@ -110,27 +118,38 @@
     const result = splited.map((text) => ({
       text,
       wait:
-        (text.length / LIMIT) * INTERVAL +
+        (text.length / getLimit()) * getInterval() +
         (!text.match(WAIT_TOKENS_REGEX)
           ? 0
           : WAIT_TOKENS.filter(
               (t) => t.token === text.match(WAIT_TOKENS_REGEX)[0]
             )[0].time),
     }));
-    // console.log(_text, tokenized, splited, result);
+    console.log(_text, tokenized, splited, result);
     return result;
   };
 
-  button.onclick = () => {
-    if (isProcessing) return;
+  submitButton.onclick = () => {
+    if (isProcessing) {
+      forceStop = true;
+      isProcessing = false;
+      changeButtonText("[[ 中止しました ]]");
+      return;
+    }
     changeButtonText("");
     isProcessing = true;
-    const { value } = input;
+    const { value } = textInput;
     const result = tokenize(value || defaultText);
     step(
       result,
-      (v) => changeButtonText(v.text),
-      (i) => (i ? result[i - 1].wait : INTERVAL)
+      (v) => {
+        if (forceStop) {
+          forceStop = false;
+          throw "停止";
+        }
+        changeButtonText(v.text);
+      },
+      (i) => (i ? result[i - 1].wait : getInterval())
     )
       .then(() => {
         isProcessing = false;
@@ -139,8 +158,24 @@
       })
       .catch((e) => {
         isProcessing = false;
-        changeButtonText("エラーが発生しました");
+        changeButtonText("[[ エラー発生 ]]");
         throw e;
       });
+  };
+  superFastButton.onclick = () => {
+    limitInput.value = 4;
+    intervalInput.value = 125;
+  };
+  fastButton.onclick = () => {
+    limitInput.value = 3;
+    intervalInput.value = 150;
+  };
+  nomalButton.onclick = () => {
+    limitInput.value = 4;
+    intervalInput.value = 200;
+  };
+  slowButton.onclick = () => {
+    limitInput.value = 3;
+    intervalInput.value = 500;
   };
 })();
