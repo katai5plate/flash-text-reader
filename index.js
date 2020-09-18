@@ -1,4 +1,6 @@
 (() => {
+  const _DEV_ = !!location.search.match(/dev/);
+
   const submitButton = document.getElementById("submit");
   const textInput = document.getElementById("text");
   const limitInput = document.getElementById("limit");
@@ -125,7 +127,8 @@
               (t) => t.token === text.match(WAIT_TOKENS_REGEX)[0]
             )[0].time),
     }));
-    console.log(_text, tokenized, splited, result);
+
+    _DEV_ && console.log(_text, tokenized, splited, result);
     return result;
   };
 
