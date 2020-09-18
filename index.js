@@ -41,6 +41,7 @@
 
   const optimizeText = (text) =>
     text
+      .replace(/\n+/g, "\n")
       .split("\n")
       .map((x) => x.trim())
       .join("\n");
@@ -61,6 +62,7 @@
         result: [],
       }
     );
+    // console.log(_text, tokenized, result);
     return [...result, ...(stock === "" ? [] : [stock])];
   };
 
