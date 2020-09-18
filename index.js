@@ -39,6 +39,12 @@
       });
     });
 
+  const optimizeText = (text) =>
+    text
+      .split("\n")
+      .map((x) => x.trim())
+      .join("\n");
+
   const tokenize = (text) => {
     if (!tokenizer) return;
     const _text = optimizeText(text);
@@ -57,12 +63,6 @@
     );
     return [...result, ...(stock === "" ? [] : [stock])];
   };
-
-  const optimizeText = (text) =>
-    text
-      .split("\n")
-      .map((x) => x.trim())
-      .join("\n");
 
   button.onclick = () => {
     if (isProcessing) return;
