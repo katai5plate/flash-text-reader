@@ -41,21 +41,28 @@
 
   const tokenize = (text) => {
     if (!tokenizer) return;
-    const { stock, result } = tokenizer
-      .tokenize(text.replace(/\s+/g, ""))
-      .map(({ surface_form }) => surface_form)
-      .reduce(
-        ({ stock, result }, c) =>
-          stock.length + c.length >= LIMIT
-            ? { stock: "", result: [...result, stock + c] }
-            : { stock: stock + c, result },
-        {
-          stock: "",
-          result: [],
-        }
-      );
+    const _text = optimizeText(text);
+    const tokenized = tokenizer
+      .tokenize(_text.replace(/\s+/g, ""))
+      .map(({ surface_form }) => surface_form);
+    const { stock, result } = tokenized.reduce(
+      ({ stock, result }, c) =>
+        stock.length + c.length >= LIMIT
+          ? { stock: "", result: [...result, stock + c] }
+          : { stock: stock + c, result },
+      {
+        stock: "",
+        result: [],
+      }
+    );
     return [...result, ...(stock === "" ? [] : [stock])];
   };
+
+  const optimizeText = (text) =>
+    text
+      .split("\n")
+      .map((x) => x.trim())
+      .join("\n");
 
   button.onclick = () => {
     if (isProcessing) return;
