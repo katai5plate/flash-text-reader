@@ -1,6 +1,19 @@
 (() => {
-  const LIMIT = 4;
-  const INTERVAL = 750;
+  const LIMIT = 3;
+  const INTERVAL = 500;
+  const WAIT_TOKENS = [
+    { token: "\n", time: INTERVAL },
+    { token: "。", time: INTERVAL },
+    { token: "、", time: INTERVAL / 2 },
+    { token: "？", time: INTERVAL / 2 },
+    { token: "！", time: INTERVAL / 2 },
+  ];
+  const WAIT_TOKENS_LIST = WAIT_TOKENS.map((x) => x.token);
+  const WAIT_TOKENS_REGEX = new RegExp(WAIT_TOKENS_LIST.join("|"));
+  const WAIT_TOKENS_REGEX_REPLACER = new RegExp(
+    `(${WAIT_TOKENS_LIST.join("|")})`,
+    "g"
+  );
 
   let defaultText = "";
   let tokenizer = null;
@@ -14,14 +27,17 @@
     let res = [];
     let index = 0;
     for (const elm of list) {
-      index++;
       res.push(
         await new Promise((r) => {
-          setTimeout(async () => {
-            r(await cb(elm, index, list));
-          }, ms);
+          setTimeout(
+            async () => {
+              r(await cb(elm, index, list));
+            },
+            typeof ms === "function" ? ms(index) : ms
+          );
         })
       );
+      index++;
     }
     return res;
   };
@@ -46,24 +62,57 @@
       .map((x) => x.trim())
       .join("\n");
 
+  const isEqualWaitTokens = (word) => WAIT_TOKENS_LIST.find((t) => t === word);
+
   const tokenize = (text) => {
     if (!tokenizer) return;
+    // 無駄な空白や改行を省く
     const _text = optimizeText(text);
+    // 字句解析して単語毎に区切る
     const tokenized = tokenizer
       .tokenize(_text.replace(/\s+/g, ""))
       .map(({ surface_form }) => surface_form);
-    const { stock, result } = tokenized.reduce(
+    // 文字数が LIMIT に満たなければ次の単語を繋げる
+    const { stock: connectedStock, result: connectedResult } = tokenized.reduce(
       ({ stock, result }, c) =>
-        stock.length + c.length >= LIMIT
-          ? { stock: "", result: [...result, stock + c] }
+        stock.length + c.length >= LIMIT || isEqualWaitTokens(c)
+          ? isEqualWaitTokens(c)
+            ? {
+                stock: "",
+                result: [
+                  ...result.slice(0, -1),
+                  ...(result.slice(-1) + stock + c)
+                    .replace(WAIT_TOKENS_REGEX_REPLACER, "$1<>")
+                    .split("<>")
+                    .filter(Boolean),
+                ],
+              }
+            : { stock: "", result: [...result, stock + c] }
           : { stock: stock + c, result },
       {
         stock: "",
         result: [],
       }
     );
-    // console.log(_text, tokenized, result);
-    return [...result, ...(stock === "" ? [] : [stock])];
+    // 上の処理で connectedStock に残った文字列を繋ぐ
+    const splited = [
+      ...connectedResult,
+      ...(connectedStock === "" ? [] : [connectedStock]),
+      "",
+    ];
+    // 各文字列の表示スピードを決める
+    const result = splited.map((text) => ({
+      text,
+      wait:
+        (text.length / LIMIT) * INTERVAL +
+        (!text.match(WAIT_TOKENS_REGEX)
+          ? 0
+          : WAIT_TOKENS.filter(
+              (t) => t.token === text.match(WAIT_TOKENS_REGEX)[0]
+            )[0].time),
+    }));
+    // console.log(_text, tokenized, splited, result);
+    return result;
   };
 
   button.onclick = () => {
@@ -72,7 +121,11 @@
     isProcessing = true;
     const { value } = input;
     const result = tokenize(value || defaultText);
-    step([...result, ""], (v) => changeButtonText(v), INTERVAL)
+    step(
+      result,
+      (v) => changeButtonText(v.text),
+      (i) => (i ? result[i - 1].wait : INTERVAL)
+    )
       .then(() => {
         isProcessing = false;
         console.log({ result });
