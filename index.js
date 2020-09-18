@@ -4,9 +4,15 @@
   const WAIT_TOKENS = [
     { token: "\n", time: INTERVAL },
     { token: "。", time: INTERVAL },
+    { token: "．", time: INTERVAL },
+    { token: "？", time: INTERVAL },
+    { token: "！", time: INTERVAL },
+    { token: "…", time: INTERVAL },
+    { token: "‥", time: INTERVAL },
     { token: "、", time: INTERVAL / 2 },
-    { token: "？", time: INTERVAL / 2 },
-    { token: "！", time: INTERVAL / 2 },
+    { token: ",", time: INTERVAL / 2 },
+    { token: "，", time: INTERVAL / 2 },
+    { token: "・", time: INTERVAL / 2 },
   ];
   const WAIT_TOKENS_LIST = WAIT_TOKENS.map((x) => x.token);
   const WAIT_TOKENS_REGEX = new RegExp(WAIT_TOKENS_LIST.join("|"));
